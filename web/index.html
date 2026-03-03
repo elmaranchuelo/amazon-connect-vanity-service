@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vanity Number Service - Last 5 Callers</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+      color: #333;
+    }
+
+    .status {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #777;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    .caller {
+      font-weight: bold;
+      color: #222;
+    }
+
+    .vanity {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .error {
+      color: #c0392b;
+    }
+
+    .empty {
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Last 5 Callers</h1>
+
+    <div id="status" class="status">Loading...</div>
+    <ul id="callers"></ul>
+  </div>
+
+  <!-- Load environment config -->
+  <script src="config.js"></script>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const listEl = document.getElementById("callers");
+
+    async function loadCallers() {
+      try {
+        const API_BASE_URL = window.APP_CONFIG?.API_BASE_URL;
+
+        if (!API_BASE_URL) {
+          throw new Error("API_BASE_URL not defined in config.js");
+        }
+
+        const response = await fetch(`${API_BASE_URL}/callers`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data from API");
+        }
+
+        const data = await response.json();
+
+        statusEl.innerText = "";
+
+        if (!data || data.length === 0) {
+          statusEl.innerText = "No callers found.";
+          statusEl.classList.add("empty");
+          return;
+        }
+
+        data.forEach(item => {
+          const li = document.createElement("li");
+
+          const caller = item.callerNumber?.S || "Unknown";
+          const vanityRaw = item.vanityNumbers?.S || "[]";
+
+          let vanityList = [];
+          try {
+            vanityList = JSON.parse(vanityRaw);
+          } catch {
+            vanityList = [];
+          }
+
+          li.innerHTML = `
+            <div class="caller">${caller}</div>
+            <div class="vanity">
+              ${vanityList.length > 0 ? vanityList.join(" | ") : "No vanity numbers"}
+            </div>
+          `;
+
+          listEl.appendChild(li);
+        });
+
+      } catch (error) {
+        console.error(error);
+        statusEl.innerText = "Error loading callers.";
+        statusEl.classList.add("error");
+      }
+    }
+
+    loadCallers();
+  </script>
+</body>
+</html>

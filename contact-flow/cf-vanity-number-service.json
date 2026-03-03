@@ -1,0 +1,87 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "9b89dede-06c8-40dc-88f6-5102636c32d4",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": 40,
+      "y": 40
+    },
+    "ActionMetadata": {
+      "a9b33df9-6b8b-4cd9-89c1-eb9d06a3a6cd": {
+        "position": {
+          "x": 828,
+          "y": 52.8
+        }
+      },
+      "9b89dede-06c8-40dc-88f6-5102636c32d4": {
+        "position": {
+          "x": 205.6,
+          "y": 125.6
+        },
+        "parameters": {
+          "LambdaFunctionARN": {
+            "displayName": "svc-vanity-number-generator"
+          }
+        },
+        "dynamicMetadata": {}
+      },
+      "01fb5e27-9ee1-47ea-a746-99aadf19c211": {
+        "position": {
+          "x": 497.6,
+          "y": 43.2
+        }
+      }
+    },
+    "Annotations": [],
+    "name": "cf-vanity-number-service",
+    "description": "",
+    "type": "contactFlow",
+    "status": "PUBLISHED",
+    "hash": {}
+  },
+  "Actions": [
+    {
+      "Parameters": {},
+      "Identifier": "a9b33df9-6b8b-4cd9-89c1-eb9d06a3a6cd",
+      "Type": "DisconnectParticipant",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "LambdaFunctionARN": "LAMBDA_ARN_PLACEHOLDER",
+        "InvocationTimeLimitSeconds": "8",
+        "InvocationType": "SYNCHRONOUS",
+        "ResponseValidation": {
+          "ResponseType": "STRING_MAP"
+        }
+      },
+      "Identifier": "9b89dede-06c8-40dc-88f6-5102636c32d4",
+      "Type": "InvokeLambdaFunction",
+      "Transitions": {
+        "NextAction": "01fb5e27-9ee1-47ea-a746-99aadf19c211",
+        "Errors": [
+          {
+            "NextAction": "a9b33df9-6b8b-4cd9-89c1-eb9d06a3a6cd",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Here are your top three vanity numbers. First: $.External.vanityNumber1. Second: $.External.vanityNumber2. Third: $.External.vanityNumber3."
+      },
+      "Identifier": "01fb5e27-9ee1-47ea-a746-99aadf19c211",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "a9b33df9-6b8b-4cd9-89c1-eb9d06a3a6cd",
+        "Errors": [
+          {
+            "NextAction": "a9b33df9-6b8b-4cd9-89c1-eb9d06a3a6cd",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    }
+  ]
+}
